@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,7 +12,7 @@ namespace Lab1
         public int countOfStates;
         public int countOfLetters;
         public string[] letters;
-        Dictionary<int, Dictionary<int, string>> automat = new Dictionary<int, Dictionary<int, string>>();
+        Dictionary<int, Dictionary<string, int>> automat = new Dictionary<int, Dictionary<string, int>>();
         public Automat() { }   
         public Automat(string Path)
         {
@@ -27,14 +28,14 @@ namespace Lab1
                     countOfStates = int.Parse(str);
                     for(int i = 0; i < countOfStates; i++)
                     {
-                        Dictionary<int, string> w = new Dictionary<int, string>();
+                        Dictionary<string, int> w = new Dictionary<string, int>();
                         str = file.ReadLine();
                         int state = int.Parse(str);
                         str = file.ReadLine();
                         string[] words = str.Split(' ');
                         for(int j = 0;j < words.Length;j += 2)
                         {
-                            w.Add(int.Parse(words[j]), words[j + 1]);
+                            w.Add(words[j + 1], int.Parse(words[j]));
                         }
                         automat.Add(state, w);
                     }
@@ -53,12 +54,12 @@ namespace Lab1
             {
                 if (state.Key == 1)
                 {
-                    Console.Write(" *{0}: ", state.Key);
+                    Console.Write("->{0}: ", state.Key);
                 }
                 else
                 {
                     if(state.Key == 7) {
-                        Console.Write("->{0}: ", state.Key);
+                        Console.Write(" *{0}: ", state.Key);
                     }
                     else
                     {
@@ -67,50 +68,71 @@ namespace Lab1
                 }
                 foreach(var way in state.Value)
                 {
-                    if(way.Value == "x")
-                    {
-                        Console.Write("{0}     {0}", way.Key);
-                    }
-                    else
-                    {
-                        Console.Write("{0}     ", way.Key);
-                    }
+                    Console.Write("{0}     ",way.Value);
                 }
                 Console.WriteLine();
             }
         }
 
+        public bool ApprovedWord(string word)
+        {
+            bool flag = false;
+            var wordLetters = word.ToCharArray();
+            var uniqLetters = wordLetters.Select(x => x.ToString()).ToHashSet().ToArray();
+
+            foreach ( var letter in uniqLetters)
+            {
+                if(letters.Any(x => x == letter)) 
+                {
+                    flag = true;
+                }
+                else
+                {
+                    flag = false;
+                }
+            }
+
+            return flag;
+        }
+
         public void StartAutomat(string word)
         {
-            int fstate = 1;
-            int buf = 0;
-            for (int i = 0; i < word.Length; i++) 
+            if (ApprovedWord(word))
             {
-                string letter = word[i].ToString();
-                foreach (var state in automat)
+                int fstate = 1;
+                int buf = 0;
+                for (int i = 0; i < word.Length; i++)
                 {
-                    if (state.Key == fstate)
+                    string letter = word[i].ToString();
+                    foreach (var state in automat)
                     {
-                        foreach (var way in state.Value)
+                        if (state.Key == fstate)
                         {
-                            if (way.Value.Equals(letter) || way.Value == "x")
+                            foreach (var way in state.Value)
                             {
-                                buf = way.Key;
-                                Console.WriteLine("{0} {1} - > {2}", fstate, word[i], buf);
+                                if (way.Key.Equals(letter))
+                                {
+                                    buf = way.Value;
+                                    Console.WriteLine("{0} {1} - > {2}", fstate, word[i], buf);
+                                }
                             }
                         }
                     }
+                    fstate = buf;
                 }
-                fstate = buf;
-            }
 
-            if(fstate == 7)
-            {
-                Console.WriteLine("Слово подходит!");
+                if (fstate == 7)
+                {
+                    Console.WriteLine("The word is appropriate!");
+                }
+                else
+                {
+                    Console.WriteLine("The word is not appropriate!");
+                }
             }
             else
             {
-                Console.WriteLine("Слово не подходит!");
+                Console.WriteLine("Uncorrect word!");
             }
         }
     }

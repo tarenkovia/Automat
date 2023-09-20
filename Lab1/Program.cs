@@ -10,14 +10,15 @@ namespace Lab1
     {
         static void Main()
         {
-            string path = "C:/Users/taren/source/repos/Lab1/Lab1/input.txt";
+            string path = "C:/Users/taren/source/repos/Lab1/Lab1/input2.txt";
             Automat A = new Automat(path);
             A.ShowAutomat();
             Console.WriteLine();
-            Console.WriteLine("Введите слово: ");
+            Console.WriteLine("Enter a word: ");
             string word = Console.ReadLine();
             Console.WriteLine();
             A.StartAutomat(word);
+            //Console.ReadKey();
         }
     }
 }
