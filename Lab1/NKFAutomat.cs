@@ -267,5 +267,39 @@ namespace Lab1
             }
             return flag;
         }
+
+        public void StartAutomat(string word)
+        {
+            string fstate = fState;
+            string buf = "";
+            for (int i = 0; i < word.Length; i++)
+            {
+                string letter = word[i].ToString();
+                foreach (var state in automat)
+                {
+                    if (state.Key == fstate)
+                    {
+                        foreach (var way in state.Value)
+                        {
+                            if (way.Key.Equals(letter))
+                            {
+                                buf = way.Value;
+                                Console.WriteLine("{0} {1} - > {2}", fstate, word[i], buf);
+                            }
+                        }
+                    }
+                }
+                fstate = buf;
+            }
+
+            if (LStateContainsState(fstate, lState))
+            {
+                Console.WriteLine("The word is appropriate!");
+            }
+            else
+            {
+                Console.WriteLine("The word is not appropriate!");
+            }
+        }
     }
 }

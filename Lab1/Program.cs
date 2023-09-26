@@ -29,6 +29,11 @@ namespace Lab1
             Console.WriteLine();
             Console.WriteLine("Дерминированный конечный автомат - ");
             A.ShowTransletionAutomat();
+            Console.WriteLine();
+            Console.WriteLine("Enter a word: ");
+            string word = Console.ReadLine();
+            Console.WriteLine();
+            A.StartAutomat(word);
         }
     }
 }
