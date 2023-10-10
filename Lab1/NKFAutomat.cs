@@ -118,6 +118,70 @@ namespace Lab1
             }
         }
 
+        public void startNKFautomat(string word)
+        {
+            Queue<string> qWord = new Queue<string>();
+            for(int i = 0; i < word.Length; i++)
+            {
+                qWord.Enqueue(word[i].ToString());
+            }
+            Queue<string> q = new Queue<string>();
+            string letter = "";
+            int k = 0;
+            q.Enqueue(fState);
+            string buf = "";
+            while (q.Count != 0)
+            {
+                string el = q.Dequeue();
+                if (k == 0)
+                {
+                    letter = qWord.Dequeue();
+                }
+                k--;
+                foreach (var state in NFKautomat)
+                {
+                    if (state.Key == el)
+                    {
+                        foreach (var way in state.Value)
+                        {
+                            if (way.Key.Equals(letter))
+                            {
+                                if(way.Value.Length > 1)
+                                {
+                                    string[] splitEl = new string[way.Value.Length];
+                                    for (int j = 0; j < splitEl.Length; j++)
+                                    {
+                                        splitEl[j] = way.Value[j].ToString();
+                                    }
+
+                                    foreach(var element in splitEl)
+                                    {
+                                        q.Enqueue(element);
+                                    }
+                                    k += splitEl.Length;
+                                }
+                                else
+                                {
+                                    q.Enqueue(way.Value);
+                                    buf = way.Value;
+                                }
+                                Console.WriteLine("{0} {1} - > {2}", el, letter, buf);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (LStateContainsState(buf, lState))
+            {
+                Console.WriteLine("The word is appropriate!");
+            }
+            else
+            {
+                Console.WriteLine("The word is not appropriate!");
+            }
+        }
+
         //Перевод из недетерминированного автомата в детерминированный
         public void TranslateNFKToKDA()
         {
