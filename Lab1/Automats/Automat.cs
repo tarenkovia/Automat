@@ -6,7 +6,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lab1
+namespace Lab1.Automats
 {
     class Automat
     {
@@ -16,12 +16,12 @@ namespace Lab1
         Dictionary<int, Dictionary<string, int>> automat = new Dictionary<int, Dictionary<string, int>>();
         public int fState = 0;
         public List<int> lState = new List<int>();
-        public Automat() { }   
+        public Automat() { }
         public Automat(string Path)
         {
-            using(StreamReader file = new StreamReader(Path))
+            using (StreamReader file = new StreamReader(Path))
             {
-                while(!file.EndOfStream)
+                while (!file.EndOfStream)
                 {
                     string str = file.ReadLine();
                     countOfLetters = int.Parse(str);
@@ -33,8 +33,8 @@ namespace Lab1
                     countOfStates = int.Parse(str);
 
                     string[] st = str.Split(' ');
-                    
-                    for(int i = 0; i < countOfStates; i++)
+
+                    for (int i = 0; i < countOfStates; i++)
                     {
                         int State = 0;
                         Dictionary<string, int> w = new Dictionary<string, int>();
@@ -45,7 +45,8 @@ namespace Lab1
                             lState.Add(int.Parse(str[3].ToString()));
                             State = int.Parse(str[3].ToString());
                         }
-                        else {
+                        else
+                        {
                             if (str.StartsWith("->"))
                             {
                                 fState = int.Parse(str[2].ToString());
@@ -60,9 +61,9 @@ namespace Lab1
                                     State = int.Parse(str[1].ToString());
                                 }
                                 else
-                                    {
-                                        State = int.Parse(str);
-                                    }
+                                {
+                                    State = int.Parse(str);
+                                }
                             }
                         }
 
@@ -94,7 +95,7 @@ namespace Lab1
 
                         str = file.ReadLine();
                         string[] words = str.Split(' ');
-                        for(int j = 0;j < words.Length;j += 2)
+                        for (int j = 0; j < words.Length; j += 2)
                         {
                             w.Add(words[j + 1], int.Parse(words[j]));
                         }
@@ -106,7 +107,7 @@ namespace Lab1
 
         public void ShowAutomat()
         {
-            foreach(var w in letters)
+            foreach (var w in letters)
             {
                 Console.Write("     {0}", w);
             }
@@ -135,12 +136,12 @@ namespace Lab1
                         }
                     }
                 }
-                    foreach (var way in state.Value)
-                    {
-                        Console.Write("{0}     ", way.Value);
-                    }
-                    Console.WriteLine();
-                
+                foreach (var way in state.Value)
+                {
+                    Console.Write("{0}     ", way.Value);
+                }
+                Console.WriteLine();
+
             }
         }
 
@@ -167,52 +168,52 @@ namespace Lab1
 
         public void StartAutomat(string word)
         {
-           // if (!String.IsNullOrEmpty(word))
+            // if (!String.IsNullOrEmpty(word))
             //{
-                //if (ApprovedWord(word))
-                //{
-                    int fstate = 1;
-                    int buf = 0;
-                    for (int i = 0; i < word.Length; i++)
+            //if (ApprovedWord(word))
+            //{
+            int fstate = 1;
+            int buf = 0;
+            for (int i = 0; i < word.Length; i++)
+            {
+                string letter = word[i].ToString();
+                foreach (var state in automat)
+                {
+                    if (state.Key == fstate)
                     {
-                        string letter = word[i].ToString();
-                        foreach (var state in automat)
+                        foreach (var way in state.Value)
                         {
-                            if (state.Key == fstate)
+                            if (way.Key.Equals(letter))
                             {
-                                foreach (var way in state.Value)
-                                {
-                                    if (way.Key.Equals(letter))
-                                    {
-                                        buf = way.Value;
-                                        Console.WriteLine("{0} {1} - > {2}", fstate, word[i], buf);
-                                    }
-                                }
+                                buf = way.Value;
+                                Console.WriteLine("{0} {1} - > {2}", fstate, word[i], buf);
                             }
                         }
-                        fstate = buf;
-                    }
-
-                    if (lState.Contains(fstate))
-                    {
-                        Console.WriteLine("The word is appropriate!");
-                    }
-                    else
-                    {
-                        Console.WriteLine("The word is not appropriate!");
                     }
                 }
-            //    else
-            //    {
-            //        Console.WriteLine("Uncorrect word!");
-            //    }
-            //}
-            //else
-            //{
-            //    if (lState.Contains(fState))
-            //    {
-            //        Console.WriteLine("The word is appropriate!");
-            //    }
-            //}
+                fstate = buf;
+            }
+
+            if (lState.Contains(fstate))
+            {
+                Console.WriteLine("The word is appropriate!");
+            }
+            else
+            {
+                Console.WriteLine("The word is not appropriate!");
+            }
         }
+        //    else
+        //    {
+        //        Console.WriteLine("Uncorrect word!");
+        //    }
+        //}
+        //else
+        //{
+        //    if (lState.Contains(fState))
+        //    {
+        //        Console.WriteLine("The word is appropriate!");
+        //    }
+        //}
     }
+}

@@ -1,4 +1,4 @@
-﻿namespace Lab1
+﻿namespace Lab1.Automats
 {
     public class E_NKFAutomat
     {
@@ -70,6 +70,83 @@
             }
         }
 
+        public void startNKFautomat(string word)
+        {
+            Queue<string> qWord = new Queue<string>();
+            for (int i = 0; i < word.Length; i++)
+            {
+                qWord.Enqueue(word[i].ToString());
+            }
+            Queue<string> q = new Queue<string>();
+            string letter = "";
+            int k = 0;
+            q.Enqueue(fState);
+            string buf = "";
+            while (q.Count != 0)
+            {
+                string el = q.Dequeue();
+                if (k == 0)
+                {
+                    letter = qWord.Dequeue();
+                }
+                k--;
+                foreach (var state in NFKautomat)
+                {
+                    if (state.Key == el)
+                    {
+                        foreach (var way in state.Value)
+                        {
+                            if (way.Key.Equals(letter))
+                            {
+                                if (way.Value.Length > 1)
+                                {
+                                    string[] splitEl = new string[way.Value.Length];
+                                    for (int j = 0; j < splitEl.Length; j++)
+                                    {
+                                        splitEl[j] = way.Value[j].ToString();
+                                    }
+
+                                    foreach (var element in splitEl)
+                                    {
+                                        q.Enqueue(element);
+                                    }
+                                    k += splitEl.Length;
+                                }
+                                else
+                                {
+                                    q.Enqueue(way.Value);
+                                    buf = way.Value;
+                                }
+                                Console.WriteLine("{0} {1} - > {2}", el, letter, buf);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (LStateContainsState(buf, lState))
+            {
+                Console.WriteLine("The word is appropriate!");
+            }
+            else
+            {
+                Console.WriteLine("The word is not appropriate!");
+            }
+        }
+
+        public bool LStateContainsState(string key, List<string> lState)
+        {
+            bool flag = false;
+            foreach (var s in lState)
+            {
+                if (key.Contains(s))
+                {
+                    flag = true;
+                }
+            }
+            return flag;
+        }
+
         // Вывод e - недетминированного автомата
         public void ShowENFKAutomat()
         {
@@ -123,7 +200,7 @@
             Queue<string> q = new Queue<string>();
             q.Enqueue(mbstate);
 
-            while(q.Count != 0)
+            while (q.Count != 0)
             {
                 string curState = q.Dequeue();
                 if (lState.Contains(curState))
@@ -158,7 +235,7 @@
             return flag;
         }
 
-        public string[] func2(string mbstate) 
+        public string[] func2(string mbstate)
         {
             string[] res = new string[2];
             Dictionary<string, string> w = new Dictionary<string, string>();
@@ -189,16 +266,16 @@
                 }
             }
 
-            while(q.Count != 0)
+            while (q.Count != 0)
             {
                 curState = q.Dequeue();
-                foreach(var state in EAutomat)
+                foreach (var state in EAutomat)
                 {
                     if (state.Key == curState)
                     {
                         foreach (var s in state.Value)
                         {
-                            if(s.Key == "0")
+                            if (s.Key == "0")
                             {
                                 res[0] += s.Value;
                             }
@@ -216,7 +293,7 @@
 
         public void TranslateENFKToNFK()
         {
-            foreach(var state in EAutomat)
+            foreach (var state in EAutomat)
             {
                 if (func1(state.Key) && !lState.Contains(state.Key))
                 {
@@ -224,14 +301,14 @@
                     lState.Add(state.Key);
                 }
             }
-            
+
             foreach (var state in EAutomat)
             {
                 Dictionary<string, string> w = new Dictionary<string, string>();
                 foreach (var s in state.Value)
                 {
-                    if(s.Key != "e")
-                    w.Add(s.Key, s.Value);
+                    if (s.Key != "e")
+                        w.Add(s.Key, s.Value);
                 }
                 NFKautomat.Add(state.Key, w);
             }
@@ -244,17 +321,17 @@
                 Dictionary<string, string> w = new Dictionary<string, string>();
                 foreach (var s in NFKautomat)
                 {
-                    if(s.Key == state.Key)
+                    if (s.Key == state.Key)
                     {
-                        foreach(var v in s.Value)
+                        foreach (var v in s.Value)
                         {
-                            if(!String.IsNullOrEmpty(c0) && !c0.Contains("-") && v.Key == "0")
+                            if (!string.IsNullOrEmpty(c0) && !c0.Contains("-") && v.Key == "0")
                             {
-                                s.Value[v.Key] = c0;
+                                s.Value[v.Key] += c0;
                             }
-                            if (!String.IsNullOrEmpty(c1) && !c1.Contains("-") && v.Key == "1")
+                            if (!string.IsNullOrEmpty(c1) && !c1.Contains("-") && v.Key == "1")
                             {
-                                s.Value[v.Key] = c1;
+                                s.Value[v.Key] += c1;
                             }
                         }
                     }

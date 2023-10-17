@@ -5,7 +5,7 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lab1
+namespace Lab1.Automats
 {
     internal class NKFAutomat
     {
@@ -121,7 +121,7 @@ namespace Lab1
         public void startNKFautomat(string word)
         {
             Queue<string> qWord = new Queue<string>();
-            for(int i = 0; i < word.Length; i++)
+            for (int i = 0; i < word.Length; i++)
             {
                 qWord.Enqueue(word[i].ToString());
             }
@@ -146,7 +146,7 @@ namespace Lab1
                         {
                             if (way.Key.Equals(letter))
                             {
-                                if(way.Value.Length > 1)
+                                if (way.Value.Length > 1)
                                 {
                                     string[] splitEl = new string[way.Value.Length];
                                     for (int j = 0; j < splitEl.Length; j++)
@@ -154,7 +154,7 @@ namespace Lab1
                                         splitEl[j] = way.Value[j].ToString();
                                     }
 
-                                    foreach(var element in splitEl)
+                                    foreach (var element in splitEl)
                                     {
                                         q.Enqueue(element);
                                     }
@@ -194,7 +194,7 @@ namespace Lab1
             {
                 if (state.Key.Equals(fState))
                 {
-                    foreach(var way in state.Value)
+                    foreach (var way in state.Value)
                     {
                         q.Enqueue(way.Value);
                         listCopy.Add(way.Value);
@@ -225,9 +225,9 @@ namespace Lab1
                 {
                     if (el.Contains(state.Key))
                     {
-                        foreach(var way in state.Value)
+                        foreach (var way in state.Value)
                         {
-                            if(way.Key == "r")
+                            if (way.Key == "r")
                             {
                                 k1 += way.Value;
                             }
@@ -240,12 +240,12 @@ namespace Lab1
                 }
                 k1 = GetUniqueAndSortString(k1);
                 k2 = GetUniqueAndSortString(k2);
-                if(!q.Contains(k1) && !listCopy.Contains(k1))
+                if (!q.Contains(k1) && !listCopy.Contains(k1))
                 {
                     q.Enqueue(k1);
                     listCopy.Add(k1);
                 }
-                if(!q.Contains(k2) && !listCopy.Contains(k2))
+                if (!q.Contains(k2) && !listCopy.Contains(k2))
                 {
                     q.Enqueue(k2);
                     listCopy.Add(k2);
@@ -257,10 +257,10 @@ namespace Lab1
         }
 
         //Превращение строки в сортированную и уникальную по элементам строку
-        public string GetUniqueAndSortString(string key) 
+        public string GetUniqueAndSortString(string key)
         {
             List<int> newEl = new List<int>();
-            for(int i = 0;i < key.Length; i++)
+            for (int i = 0; i < key.Length; i++)
             {
                 newEl.Add(key[i]);
             }
@@ -269,7 +269,7 @@ namespace Lab1
             noDupes.Sort();
 
             char[] str = new char[noDupes.Count];
-            for(int i = 0; i < noDupes.Count; i++)
+            for (int i = 0; i < noDupes.Count; i++)
             {
                 str[i] = Convert.ToChar(noDupes[i]);
             }
@@ -322,7 +322,7 @@ namespace Lab1
         public bool LStateContainsState(string key, List<string> lState)
         {
             bool flag = false;
-            foreach(var s in lState)
+            foreach (var s in lState)
             {
                 if (key.Contains(s))
                 {
