@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Net.WebSockets;
-
-namespace Lab1
+﻿namespace Lab1
 {
     public class Program
     {
@@ -13,20 +6,55 @@ namespace Lab1
         {
             var newLexical = new Laboratory_lexical1();
             newLexical.Start(string.Join(Environment.NewLine, input));
-            Console.WriteLine("Индекс\t Класс\t\t Тип\t\t      Значение");
             for (int i = 0; i < newLexical.Lexemes.Count; i++)
             {
-                Console.WriteLine($"{(i + 1).ToString(),-8} {newLexical.Lexemes[i].Class.ToString(), -15} {newLexical.Lexemes[i].Type.ToString(),-20} {newLexical.Lexemes[i].Value.ToString()}");
+                Console.WriteLine($"Индекс:{i+1,-3}Класс:{newLexical.Lexemes[i].Class.ToString(), -15} Тип:{newLexical.Lexemes[i].Type.ToString(),-20} Значение:{newLexical.Lexemes[i].Value.ToString()}");
+            }
+        }
+
+        public static void RunTask2(List<string> input)
+        {
+            var analyser = new Laboratory_lexical2();
+            try
+            {
+                var result = analyser.Run(string.Join(Environment.NewLine, input));
+                Console.WriteLine("Результат: ");
+                Console.WriteLine(result ? "Успешно проинициализированно" : "Неподходящая конструкция");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
         static void Main()
         {
-            const string input = "SeLeCt 20 + B\ncAsE 40 b = b + 13\ndEfAuLt b = B - 50\neNd";
+            //const string input = "SeLeCt 20 >= B\ncAsE 40 b = (b + 13) - 2\ndEfAuLt b = B - 50\neNd";
+            //Console.WriteLine("Конструкция, поступаемая на вход:");
+            //Console.WriteLine(input);
+            //Console.WriteLine();
+            //string newInput = input.ToLower();
+            //RunTask1(newInput);
+
+            List<string> input = new()
+            {
+                "SeLeCt 20 >= B",
+                "cAsE 40",
+                "b = b + 13",
+                "dEfAuLt b = B - 50",
+                "eNd"
+            };
+            List<string> newInput = new();
             Console.WriteLine("Конструкция, поступаемая на вход:");
-            Console.WriteLine(input);
+            foreach(var str in input)
+            {
+                newInput.Add(str.ToLower());
+            }
+            foreach (var str in newInput)
+            {
+                Console.WriteLine(str);
+            }
             Console.WriteLine();
-            string newInput = input.ToLower();
-            RunTask1(newInput);
+            RunTask2(newInput);
 
 
 

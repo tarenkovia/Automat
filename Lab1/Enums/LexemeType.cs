@@ -12,6 +12,11 @@
         ArithmeticOperation,
         Assignment,
         Undefined,
-        Output
+        Output,
+        Brackets,
+        Not,
+        Loop,
+        Do,
+        While
     }
 }

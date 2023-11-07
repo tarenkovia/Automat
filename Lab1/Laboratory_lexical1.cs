@@ -1,9 +1,5 @@
 ﻿using Lab1.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Lab1
 {
@@ -67,6 +63,8 @@ namespace Lab1
                             else if (symbol == '+' || symbol == '-' || symbol == '/' || symbol == '*') LexemeState = LexemeState.ArithmeticOperation;
 
                             else if (symbol == '=') LexemeState = LexemeState.Assignment;
+
+                            else if (symbol == '(' || symbol == ')') LexemeState = LexemeState.Assignment;
 
                             else LexemeState = LexemeState.Error;
 
@@ -153,11 +151,19 @@ namespace Lab1
                                 curLexeme.Append(symbol);
                             }
 
+                            else if (symbol == '(' || symbol == ')')
+                            {
+                                LexemeState = LexemeState.Assignment;
+                                curLexeme.Append(symbol);
+                            }
+
                             else //if (char.IsWhiteSpace(symbol))
                             {
                                 LexemeState = LexemeState.Identifier;
                                 nextLexeme.Append(symbol);
                             }
+
+                            
 
                             //else
                             //{
@@ -202,6 +208,12 @@ namespace Lab1
                             else if (symbol == '+' || symbol == '-' || symbol == '/' || symbol == '*')
                             {
                                 LexemeState = LexemeState.ArithmeticOperation;
+                                nextLexeme.Append(symbol);
+                            }
+
+                            else if (symbol == '(' || symbol == ')')
+                            {
+                                LexemeState = LexemeState.Assignment;
                                 nextLexeme.Append(symbol);
                             }
 
@@ -250,6 +262,12 @@ namespace Lab1
                             }
 
                             else if (symbol == ':')
+                            {
+                                LexemeState = LexemeState.Assignment;
+                                nextLexeme.Append(symbol);
+                            }
+
+                            else if (symbol == '(' || symbol == ')')
                             {
                                 LexemeState = LexemeState.Assignment;
                                 nextLexeme.Append(symbol);
@@ -329,6 +347,10 @@ namespace Lab1
                 if (value == "==")
                 {
                     typeLexeme = LexemeType.Relation;
+                }
+                else if (value == ")" || value == "(") 
+                {
+                    typeLexeme = LexemeType.Brackets;
                 }
                 else
                 {
