@@ -39,7 +39,7 @@
             {
                 "SeLeCt 20 >= B",
                 "cAsE 40",
-                "b = b + 13",
+                "b = ( b + 13 ) - 2",
                 "dEfAuLt b = B - 50",
                 "eNd"
             };

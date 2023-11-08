@@ -65,6 +65,8 @@ namespace Lab1
 
                             else if (symbol == '=') state = LexemeState.Assignment;
 
+                            else if (symbol == '(' || symbol == ')') state = LexemeState.Assignment;
+
                             else state = LexemeState.Error;
 
                             isAbleToAdd = false;
@@ -150,6 +152,12 @@ namespace Lab1
                                 lexBufCur.Append(symbol);
                             }
 
+                            else if (symbol == '(' || symbol == ')')
+                            {
+                                state = LexemeState.Assignment;
+                                lexBufCur.Append(symbol);
+                            }
+
                             else //if (char.IsWhiteSpace(symbol))
                             {
                                 state = LexemeState.Identifier;
@@ -202,6 +210,12 @@ namespace Lab1
                                 lexBufNext.Append(symbol);
                             }
 
+                            else if (symbol == '(' || symbol == ')')
+                            {
+                                state = LexemeState.Assignment;
+                                lexBufNext.Append(symbol);
+                            }
+
                             else
                             {
                                 state = LexemeState.Error;
@@ -247,6 +261,12 @@ namespace Lab1
                             }
 
                             else if (symbol == ':')
+                            {
+                                state = LexemeState.Assignment;
+                                lexBufNext.Append(symbol);
+                            }
+
+                            else if (symbol == '(' || symbol == ')')
                             {
                                 state = LexemeState.Assignment;
                                 lexBufNext.Append(symbol);
@@ -326,6 +346,10 @@ namespace Lab1
                 if (value == "==")
                 {
                     lexType = LexemeType.Relation;
+                }
+                else if (value == ")" || value == "(")
+                {
+                    lexType = LexemeType.Brackets;
                 }
                 else
                 {

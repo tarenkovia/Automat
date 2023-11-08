@@ -16,10 +16,10 @@ namespace Lab1
                 throw new Exception("При лексическом анализе были допущены ошибки");
             }
 
-            return IsDoWhileStatement(analyser.Lexemes);
+            return IsSelectCaseStatement(analyser.Lexemes);
         }
 
-        private bool IsDoWhileStatement(List<Lexeme> lexemeList)
+        private bool IsSelectCaseStatement(List<Lexeme> lexemeList)
         {
             _lexemeList = lexemeList;
             if (lexemeList.Count == 0) return false;
@@ -40,7 +40,9 @@ namespace Lab1
 
             if (!IsOperand()) return false;
 
-            if (!IsStatement()) return false;
+            if (!IsStatementWithBrackets()) return false;
+
+            //if (!IsStatement()) return false;
 
             if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Default) { ErrorType.Error("Ожидается default", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }
             _lexemeEnumerator.MoveNext();
@@ -123,25 +125,76 @@ namespace Lab1
 
         private bool IsStatement()
         {
-            if (_lexemeEnumerator.Current != null && _lexemeEnumerator.Current.Type == LexemeType.Loop) return false;
+            if (_lexemeEnumerator.Current != null && _lexemeEnumerator.Current.Type == LexemeType.End) return false;
 
-            if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Class != LexemeClass.Identifier)
+            if (!IsOperand())
             {
-                if (_lexemeEnumerator.Current.Type == LexemeType.Output)
-                {
-                    _lexemeEnumerator.MoveNext();
-                    if (!IsOperand()) return false;
-                    return true;
-                }
-
-                ErrorType.Error("Ожидается переменная", _lexemeList.IndexOf(_lexemeEnumerator.Current));
+                ErrorType.Error("Ожидается константа", _lexemeList.IndexOf(_lexemeEnumerator.Current));
                 return false;
             }
-            _lexemeEnumerator.MoveNext();
 
             if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Assignment)
             {
                 ErrorType.Error("Ожидается присваивание", _lexemeList.IndexOf(_lexemeEnumerator.Current));
+                return false;
+            }
+            _lexemeEnumerator.MoveNext();
+
+            //if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Brackets)
+            //{
+            //    ErrorType.Error("Ожидаются скобки", _lexemeList.IndexOf(_lexemeEnumerator.Current));
+            //    return false;
+            //}
+            //_lexemeEnumerator.MoveNext();
+
+            if (!IsOperand())
+            {
+                ErrorType.Error("Ожидается константа", _lexemeList.IndexOf(_lexemeEnumerator.Current));
+                return false;
+            }
+
+
+            if (!IsArithmeticExpression()) return false;
+
+            return true;
+        }
+
+        private bool IsStatementWithBrackets()
+        {
+            if (_lexemeEnumerator.Current != null && _lexemeEnumerator.Current.Type == LexemeType.End) return false;
+
+            if (!IsOperand())
+            {
+                ErrorType.Error("Ожидается константа", _lexemeList.IndexOf(_lexemeEnumerator.Current));
+                return false;
+            }
+
+            if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Assignment)
+            {
+                ErrorType.Error("Ожидается присваивание", _lexemeList.IndexOf(_lexemeEnumerator.Current));
+                return false;
+            }
+            _lexemeEnumerator.MoveNext();
+
+            if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Brackets)
+            {
+                ErrorType.Error("Ожидаются скобки", _lexemeList.IndexOf(_lexemeEnumerator.Current));
+                return false;
+            }
+            _lexemeEnumerator.MoveNext();
+
+            if (!IsOperand())
+            {
+                ErrorType.Error("Ожидается константа", _lexemeList.IndexOf(_lexemeEnumerator.Current));
+                return false;
+            }
+
+
+            if (!IsArithmeticExpression()) return false;
+
+            if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Brackets)
+            {
+                ErrorType.Error("Ожидаются скобки", _lexemeList.IndexOf(_lexemeEnumerator.Current));
                 return false;
             }
             _lexemeEnumerator.MoveNext();
@@ -153,7 +206,7 @@ namespace Lab1
 
         private bool IsArithmeticExpression()
         {
-            if (!IsOperand()) return false;
+            //if (!IsOperand()) return false;
             while (_lexemeEnumerator.Current.Type == LexemeType.ArithmeticOperation)
             {
                 _lexemeEnumerator.MoveNext();
