@@ -35,19 +35,27 @@ namespace Lab1
 
             //if (!IsStatement()) return false;
 
-            if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Case) { ErrorType.Error("Ожидается case", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }
-            _lexemeEnumerator.MoveNext();
+            while (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type == LexemeType.Case)
+            {
 
-            if (!IsOperand()) return false;
+                if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Case) { ErrorType.Error("Ожидается case", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }
+                _lexemeEnumerator.MoveNext();
 
-            if (!IsStatementWithBrackets()) return false;
+                if (!IsOperand()) return false;
 
-            //if (!IsStatement()) return false;
+                if (!IsStatementWithBrackets()) return false;
 
-            if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Default) { ErrorType.Error("Ожидается default", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }
-            _lexemeEnumerator.MoveNext();
+                //if (!IsStatement()) return false;
+            }
+            if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type == LexemeType.Default)
+            {
 
-            if (!IsStatement()) return false;
+                if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Default) { ErrorType.Error("Ожидается default", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }
+                _lexemeEnumerator.MoveNext();
+
+
+                if (!IsStatement()) return false;
+            }
 
             if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.End) { ErrorType.Error("Ожидается end", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }
             _lexemeEnumerator.MoveNext();

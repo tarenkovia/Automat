@@ -28,19 +28,18 @@
         }
         static void Main()
         {
-            //const string input = "SeLeCt 20 >= B\ncAsE 40 b = (b + 13) - 2\ndEfAuLt b = B - 50\neNd";
-            //Console.WriteLine("Конструкция, поступаемая на вход:");
-            //Console.WriteLine(input);
-            //Console.WriteLine();
-            //string newInput = input.ToLower();
-            //RunTask1(newInput);
-
             List<string> input = new()
             {
                 "SeLeCt 20 >= B",
                 "cAsE 40",
                 "b = ( b + 13 ) - 2",
-                "dEfAuLt b = B - 50",
+                "cAsE 89",
+                "b = ( b + 89 ) - 5",
+                "cAsE 48",
+                "b = ( b + 13 ) - 2",
+                "cAsE 79",
+                "b = ( b + 89 ) - 5",
+                "default b = b + 19",
                 "eNd"
             };
             List<string> newInput = new();
