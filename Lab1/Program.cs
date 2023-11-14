@@ -2,6 +2,11 @@
 {
     public class Program
     {
+        static void FormatOut(string str)
+        {
+            Console.Write("{0, 6} ", str);
+        }
+
         public static void RunTask1(string input)
         {
             var newLexical = new Laboratory_lexical1();
@@ -26,34 +31,87 @@
                 Console.WriteLine(ex.Message);
             }
         }
+
+        public static void RunTask3(List<string> input)
+        {
+            var analyser = new Laboratory_lexical3();
+            try
+            {
+                var result = analyser.Run(string.Join(Environment.NewLine, input), out List<Entry> entryList);
+                Console.Write("Результат: ");
+                Console.WriteLine(result ? "Все прошло успешно" : "Неподходящая конструкция");
+                foreach (var entry in entryList)
+                {
+                    if (entry.EntryType is EntryType.Var or EntryType.Const) FormatOut(entry.Value);
+                    else if (entry.EntryType == EntryType.Cmd) FormatOut(entry.Cmd.ToString());
+                    else if (entry.EntryType == EntryType.CmdPtr) FormatOut($"{entry.CmdPtr}");
+                }
+                Console.WriteLine();
+                for (int i = 0; i < entryList.Count + 1; i++)
+                {
+                    FormatOut($"{i}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            Console.WriteLine();
+        }
         static void Main()
         {
             List<string> input = new()
             {
-                "SeLeCt 20 >= B",
-                "cAsE 40",
-                "b = ( b + 13 ) - 2",
-                "cAsE 89",
-                "b = ( b + 89 ) - 5",
-                "cAsE 48",
-                "b = ( b + 13 ) - 2",
-                "cAsE 79",
-                "b = ( b + 89 ) - 5",
-                "default b = b + 19",
-                "eNd"
+                "select 20 >= b",
+                "case 40",
+                "	b = b + 13",
+                "case 89",
+                "   b = b + 89",
+                "default b = b + 60",
+                "end"
             };
-            List<string> newInput = new();
-            Console.WriteLine("Конструкция, поступаемая на вход:");
-            foreach(var str in input)
-            {
-                newInput.Add(str.ToLower());
-            }
-            foreach (var str in newInput)
-            {
-                Console.WriteLine(str);
-            }
-            Console.WriteLine();
-            RunTask2(newInput);
+            //List<string> newInput = new();
+            //Console.WriteLine("Конструкция, поступаемая на вход:");
+            //foreach (var str in input)
+            //{
+            //    newInput.Add(str.ToLower());
+            //}
+            //foreach (var str in newInput)
+            //{
+            //    Console.WriteLine(str);
+            //}
+            //Console.WriteLine();
+            RunTask3(input);
+
+
+
+            //List<string> input = new()
+            //{
+            //    "SeLeCt 20 >= B",
+            //    "cAsE 40",
+            //    "b = ( b + 13 ) - 2",
+            //    "cAsE 89",
+            //    "b = ( b + 89 ) - 5",
+            //    "cAsE 48",
+            //    "b = ( b + 13 ) - 2",
+            //    "cAsE 79",
+            //    "b = ( b + 89 ) - 5",
+            //    "default b = b + 19",
+            //    "eNd"
+            //};
+            //List<string> newInput = new();
+            //Console.WriteLine("Конструкция, поступаемая на вход:");
+            //foreach(var str in input)
+            //{
+            //    newInput.Add(str.ToLower());
+            //}
+            //foreach (var str in newInput)
+            //{
+            //    Console.WriteLine(str);
+            //}
+            //Console.WriteLine();
+            //RunTask2(newInput);
 
 
 

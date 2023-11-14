@@ -381,6 +381,9 @@ namespace Lab1
                 else if (value == "default") lexType = LexemeType.Default;
                 else if (value == "end") lexType = LexemeType.End;
                 else if (value == "while") lexType = LexemeType.While;
+                else if (value == "do") lexType = LexemeType.Do;
+                else if (value == "loop") lexType = LexemeType.Loop;
+                else if (value == "output") lexType = LexemeType.Output;
                 else
                 {
                     lexType = LexemeType.Undefined;

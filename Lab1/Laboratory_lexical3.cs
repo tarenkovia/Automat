@@ -2,21 +2,27 @@
 
 namespace Lab1
 {
-    public class Laboratory_lexical2
+    public class Laboratory_lexical3
     {
         private List<Lexeme> _lexemeList;
         private IEnumerator<Lexeme> _lexemeEnumerator;
 
-        public bool Run(string code)
+        private List<Entry> EntryList { get; set; }
+
+        public bool Run(string code, out List<Entry> postfixEntries)
         {
+            EntryList = new List<Entry>();
+
             Lexical analyser = new();
             var result = analyser.Run(string.Join(Environment.NewLine, code));
             if (!result)
             {
-                throw new Exception("При лексическом анализе были допущены ошибки");
+                throw new Exception("Errors were occurred in lexical analyze");
             }
 
-            return IsSelectCaseStatement(analyser.Lexemes);
+            bool res = IsSelectCaseStatement(analyser.Lexemes);
+            postfixEntries = new(EntryList);
+            return res;
         }
 
         private bool IsSelectCaseStatement(List<Lexeme> lexemeList)
@@ -33,8 +39,6 @@ namespace Lab1
 
             if (!RelationalExpression()) return false;
 
-            //if (!IsStatement()) return false;
-
             while (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type == LexemeType.Case)
             {
 
@@ -43,10 +47,13 @@ namespace Lab1
 
                 if (!IsOperand()) return false;
 
-                if (!IsStatementWithBrackets()) return false;
+                WriteCmd(Cmd.JZ);
 
-                //if (!IsStatement()) return false;
+                if (!IsStatement()) return false;
+
+                WriteCmd(Cmd.JMP);
             }
+
             if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type == LexemeType.Default)
             {
 
@@ -60,8 +67,10 @@ namespace Lab1
             if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.End) { ErrorType.Error("Ожидается end", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }
             _lexemeEnumerator.MoveNext();
 
-            if (_lexemeEnumerator.MoveNext()) { ErrorType.Error("Лишние символы", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }
+            WriteCmd(Cmd.JMP);
 
+
+            if (_lexemeEnumerator.MoveNext()) { ErrorType.Error("Лишние символы", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }
             return true;
         }
 
@@ -72,6 +81,32 @@ namespace Lab1
             {
                 _lexemeEnumerator.MoveNext();
                 if (!IsLogicalExpression()) return false;
+
+                WriteCmd(Cmd.OR);
+            }
+            return true;
+        }
+
+        private bool RelationalExpression()
+        {
+            //if (!IsOperand()) return false;
+            if (_lexemeEnumerator.Current != null && _lexemeEnumerator.Current.Type == LexemeType.Relation)
+            {
+                var cmd = _lexemeEnumerator.Current.Value switch
+                {
+                    "<" => Cmd.CMPL,
+                    "<=" => Cmd.CMPLE,
+                    ">" => Cmd.CMPG,
+                    ">=" => Cmd.CMPGE,
+                    "==" => Cmd.CMPE,
+                    "<>" => Cmd.CMPNE,
+                    _ => throw new ArgumentException(_lexemeEnumerator.Current.Value)
+                };
+
+                _lexemeEnumerator.MoveNext();
+                if (!IsOperand()) return false;
+
+                WriteCmd(cmd);
             }
             return true;
         }
@@ -83,17 +118,8 @@ namespace Lab1
             {
                 _lexemeEnumerator.MoveNext();
                 if (!RelationalExpression()) return false;
-            }
-            return true;
-        }
 
-        private bool RelationalExpression()
-        {
-            //if (!IsOperand()) return false;
-            if (_lexemeEnumerator.Current != null && _lexemeEnumerator.Current.Type == LexemeType.Relation)
-            {
-                _lexemeEnumerator.MoveNext();
-                if (!IsOperand()) return false;
+                WriteCmd(Cmd.AND);
             }
             return true;
         }
@@ -105,6 +131,9 @@ namespace Lab1
                 ErrorType.Error("Ожидается переменная", _lexemeList.IndexOf(_lexemeEnumerator.Current));
                 return false;
             }
+
+            WriteVar(_lexemeList.IndexOf(_lexemeEnumerator.Current));
+
             _lexemeEnumerator.MoveNext();
             return true;
         }
@@ -116,17 +145,16 @@ namespace Lab1
                 ErrorType.Error("Ожидается переменная или константа", _lexemeList.IndexOf(_lexemeEnumerator.Current));
                 return false;
             }
-            _lexemeEnumerator.MoveNext();
-            return true;
-        }
 
-        private bool IsLogicalOperation()
-        {
-            if (_lexemeEnumerator.Current == null || (_lexemeEnumerator.Current.Type != LexemeType.And && _lexemeEnumerator.Current.Type != LexemeType.Or))
+            if (_lexemeEnumerator.Current.Class == LexemeClass.Identifier)
             {
-                ErrorType.Error("Ожидается логическая операция", _lexemeList.IndexOf(_lexemeEnumerator.Current));
-                return false;
+                WriteVar(_lexemeList.IndexOf(_lexemeEnumerator.Current));
             }
+            else
+            {
+                WriteConst(_lexemeList.IndexOf(_lexemeEnumerator.Current));
+            }
+
             _lexemeEnumerator.MoveNext();
             return true;
         }
@@ -135,11 +163,24 @@ namespace Lab1
         {
             if (_lexemeEnumerator.Current != null && _lexemeEnumerator.Current.Type == LexemeType.End) return false;
 
-            if (!IsOperand())
+            if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Class != LexemeClass.Identifier)
             {
-                ErrorType.Error("Ожидается константа", _lexemeList.IndexOf(_lexemeEnumerator.Current));
+                if (_lexemeEnumerator.Current.Type == LexemeType.Output)
+                {
+                    _lexemeEnumerator.MoveNext();
+                    if (!IsOperand()) return false;
+
+                    WriteCmd(Cmd.OUTPUT);
+
+                    return true;
+                }
+                ErrorType.Error("Ожидается переменная", _lexemeList.IndexOf(_lexemeEnumerator.Current));
                 return false;
             }
+
+            WriteVar(_lexemeList.IndexOf(_lexemeEnumerator.Current));
+
+            _lexemeEnumerator.MoveNext();
 
             if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Assignment)
             {
@@ -148,72 +189,82 @@ namespace Lab1
             }
             _lexemeEnumerator.MoveNext();
 
-            if (!IsOperand())
-            {
-                ErrorType.Error("Ожидается константа", _lexemeList.IndexOf(_lexemeEnumerator.Current));
-                return false;
-            }
-
-
             if (!IsArithmeticExpression()) return false;
 
-            return true;
-        }
-
-        private bool IsStatementWithBrackets()
-        {
-            if (_lexemeEnumerator.Current != null && _lexemeEnumerator.Current.Type == LexemeType.End) return false;
-
-            if (!IsOperand())
-            {
-                ErrorType.Error("Ожидается константа", _lexemeList.IndexOf(_lexemeEnumerator.Current));
-                return false;
-            }
-
-            if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Assignment)
-            {
-                ErrorType.Error("Ожидается присваивание", _lexemeList.IndexOf(_lexemeEnumerator.Current));
-                return false;
-            }
-            _lexemeEnumerator.MoveNext();
-
-            if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Brackets)
-            {
-                ErrorType.Error("Ожидаются скобки", _lexemeList.IndexOf(_lexemeEnumerator.Current));
-                return false;
-            }
-            _lexemeEnumerator.MoveNext();
-
-            if (!IsOperand())
-            {
-                ErrorType.Error("Ожидается константа", _lexemeList.IndexOf(_lexemeEnumerator.Current));
-                return false;
-            }
-
-
-            if (!IsArithmeticExpression()) return false;
-
-            if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Brackets)
-            {
-                ErrorType.Error("Ожидаются скобки", _lexemeList.IndexOf(_lexemeEnumerator.Current));
-                return false;
-            }
-            _lexemeEnumerator.MoveNext();
-
-            if (!IsArithmeticExpression()) return false;
+            WriteCmd(Cmd.SET);
 
             return true;
         }
 
         private bool IsArithmeticExpression()
         {
-            //if (!IsOperand()) return false;
+            if (!IsOperand()) return false;
             while (_lexemeEnumerator.Current.Type == LexemeType.ArithmeticOperation)
             {
+                var cmd = _lexemeEnumerator.Current.Value switch
+                {
+                    "+" => Cmd.ADD,
+                    "-" => Cmd.SUB,
+                    "*" => Cmd.MUL,
+                    "/" => Cmd.DIV,
+                    _ => throw new ArgumentException(_lexemeEnumerator.Current.Value)
+                };
+
                 _lexemeEnumerator.MoveNext();
                 if (!IsOperand()) return false;
+
+                WriteCmd(cmd);
             }
             return true;
+        }
+
+        private int WriteCmd(Cmd cmd)
+        {
+            var command = new Entry
+            {
+                EntryType = EntryType.Cmd,
+                Cmd = cmd,
+            };
+            EntryList.Add(command);
+            return EntryList.Count - 1;
+        }
+
+        private int WriteVar(int index)
+        {
+            var variable = new Entry
+            {
+                EntryType = EntryType.Var,
+                Value = _lexemeList[index].Value
+            };
+            EntryList.Add(variable);
+            return EntryList.Count - 1;
+        }
+
+        private int WriteConst(int index)
+        {
+            var variable = new Entry
+            {
+                EntryType = EntryType.Const,
+                Value = _lexemeList[index].Value
+            };
+            EntryList.Add(variable);
+            return EntryList.Count - 1;
+        }
+
+        private int WriteCmdPtr(int ptr)
+        {
+            var cmdPtr = new Entry
+            {
+                EntryType = EntryType.CmdPtr,
+                CmdPtr = ptr,
+            };
+            EntryList.Add(cmdPtr);
+            return EntryList.Count - 1;
+        }
+
+        private void SetCmdPtr(int index, int ptr)
+        {
+            EntryList[index].CmdPtr = ptr;
         }
     }
 }
