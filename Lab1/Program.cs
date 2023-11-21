@@ -39,7 +39,7 @@
             {
                 var result = analyser.Run(string.Join(Environment.NewLine, input), out List<Entry> entryList);
                 Console.Write("Результат: ");
-                Console.WriteLine(result ? "Все прошло успешно" : "Неподходящая конструкция");
+                Console.WriteLine(result ? "Успешно проинициализированно" : "Неподходящая конструкция");
                 foreach (var entry in entryList)
                 {
                     if (entry.EntryType is EntryType.Var or EntryType.Const) FormatOut(entry.Value);
@@ -59,18 +59,39 @@
 
             Console.WriteLine();
         }
+
+        public static void RunTask4(string input)
+        {
+            Console.WriteLine("Код в файле:");
+            Console.WriteLine(input);
+
+            Laboratory_lexical4 interpreter = new();
+            try
+            {
+                interpreter.Run(input);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
         static void Main()
         {
-            List<string> input = new()
-            {
-                "select 20 >= b",
-                "case 40",
-                "	b = b + 13",
-                "case 89",
-                "   b = b + 89",
-                "default b = b + 60",
-                "end"
-            };
+            //List<string> input = new()
+            //{
+            //    "SelEct b",
+            //    "caSe 40",
+            //    "   b = b + 13",
+            //    "Case 89",
+            //    "   b = b - 89",
+            //    "dEfault b = B + 60",
+            //    "enD"
+            //};
+            string input = "select b + 15 case 40 b = b + 13 case 89 b = b - 89 default b = b + 60 end";
+            Console.WriteLine();
+            RunTask4(input);
+
             //List<string> newInput = new();
             //Console.WriteLine("Конструкция, поступаемая на вход:");
             //foreach (var str in input)
@@ -82,7 +103,7 @@
             //    Console.WriteLine(str);
             //}
             //Console.WriteLine();
-            RunTask3(input);
+            //RunTask3(newInput);
 
 
 

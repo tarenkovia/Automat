@@ -1,7 +1,7 @@
 ﻿public enum Cmd
 {
     JMP,
-    JZ,
+    JNZ,
     SET,
     ADD,
     SUB,

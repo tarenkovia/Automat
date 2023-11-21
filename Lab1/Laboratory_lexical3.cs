@@ -27,32 +27,109 @@ namespace Lab1
 
         private bool IsSelectCaseStatement(List<Lexeme> lexemeList)
         {
+            var indFirst = EntryList.Count;
             _lexemeList = lexemeList;
             if (lexemeList.Count == 0) return false;
+
+            var firstCase = lexemeList
+            .FindIndex(x => x.Type == LexemeType.Case
+            && x.Value?.ToLower() == "case");
+
+            var onesDefault = lexemeList
+                .FindIndex(x => x.Type == LexemeType.Default
+                && x.Value?.ToLower() == "default");
+
+            var lastLastIndex = onesDefault + 11;
+
+            var countOfCases = lexemeList.FindAll(x => x.Type == LexemeType.Case).Count();
 
             _lexemeEnumerator = lexemeList.GetEnumerator();
 
             if (!_lexemeEnumerator.MoveNext() || _lexemeEnumerator.Current.Type != LexemeType.Select) { ErrorType.Error("Ожидается select", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }
             _lexemeEnumerator.MoveNext();
 
-            if (!IsOperand()) return false;
+            if (!IsArithmeticExpression()) return false;
 
-            if (!RelationalExpression()) return false;
-
-            while (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type == LexemeType.Case)
-            {
+            while (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type == LexemeType.Case) {
 
                 if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Case) { ErrorType.Error("Ожидается case", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }
                 _lexemeEnumerator.MoveNext();
 
                 if (!IsOperand()) return false;
 
-                WriteCmd(Cmd.JZ);
+                WriteCmd(Cmd.CMPE);
+
+                var lastIndex = 0;
+                if (countOfCases > 1)
+                {
+                    for (int i = 0; i < lexemeList.Count(); i++)
+                    {
+                        if (lexemeList[i].Type == LexemeType.Case && i > firstCase)
+                        {
+                            lastIndex = i + 1;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    lastIndex = onesDefault + 3;
+                }
+                countOfCases--;
+
+                WriteCmdPtr(lastIndex);
+                WriteCmd(Cmd.JNZ);
 
                 if (!IsStatement()) return false;
 
-                WriteCmd(Cmd.JMP);
             }
+
+            //if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Case) { ErrorType.Error("Ожидается case", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }
+            //_lexemeEnumerator.MoveNext();
+
+            //if (!IsOperand()) return false;
+
+            //WriteCmd(Cmd.CMPE);
+
+            //var lastIndex = 0;
+            //for(int i = 0; i < lexemeList.Count(); i++)
+            //{
+            //    if (lexemeList[i].Type == LexemeType.Case && i > firstCase)
+            //    {
+            //        lastIndex = i;
+            //        firstCase = i;
+            //    }
+            //}
+            //WriteCmdPtr(lastIndex + 3);
+            //WriteCmd(Cmd.JNZ);
+
+            //if (!IsStatement()) return false;
+
+            //if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.Case) { ErrorType.Error("Ожидается case", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }
+            //_lexemeEnumerator.MoveNext();
+
+            //if (!IsOperand()) return false;
+
+            //if (countOfCases > 1)
+            //{
+            //    for (int i = 0; i < lexemeList.Count(); i++)
+            //    {
+            //        if (lexemeList[i].Type == LexemeType.Case && i > firstCase)
+            //        {
+            //            lastIndex = i;
+            //            break;
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    lastIndex = onesDefault + 6;
+            //}
+            
+            //WriteCmdPtr(lastIndex);
+            //WriteCmd(Cmd.JNZ);
+
+            //if (!IsStatement()) return false;
 
             if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type == LexemeType.Default)
             {
@@ -66,8 +143,6 @@ namespace Lab1
 
             if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.End) { ErrorType.Error("Ожидается end", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }
             _lexemeEnumerator.MoveNext();
-
-            WriteCmd(Cmd.JMP);
 
 
             if (_lexemeEnumerator.MoveNext()) { ErrorType.Error("Лишние символы", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }
@@ -89,7 +164,7 @@ namespace Lab1
 
         private bool RelationalExpression()
         {
-            //if (!IsOperand()) return false;
+            if (!IsOperand()) return false;
             if (_lexemeEnumerator.Current != null && _lexemeEnumerator.Current.Type == LexemeType.Relation)
             {
                 var cmd = _lexemeEnumerator.Current.Value switch
@@ -165,17 +240,12 @@ namespace Lab1
 
             if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Class != LexemeClass.Identifier)
             {
-                if (_lexemeEnumerator.Current.Type == LexemeType.Output)
+                if (_lexemeEnumerator.Current.Type == LexemeType.End
+                || _lexemeEnumerator.Current.Type == LexemeType.Case
+                || _lexemeEnumerator.Current.Type == LexemeType.Default)
                 {
-                    _lexemeEnumerator.MoveNext();
-                    if (!IsOperand()) return false;
-
-                    WriteCmd(Cmd.OUTPUT);
-
-                    return true;
+                    return false;
                 }
-                ErrorType.Error("Ожидается переменная", _lexemeList.IndexOf(_lexemeEnumerator.Current));
-                return false;
             }
 
             WriteVar(_lexemeList.IndexOf(_lexemeEnumerator.Current));
