@@ -39,7 +39,7 @@ namespace Lab1
                 .FindIndex(x => x.Type == LexemeType.Default
                 && x.Value?.ToLower() == "default");
 
-            var lastLastIndex = onesDefault + 11;
+            var lastLastIndex = onesDefault + 10;
 
             var countOfCases = lexemeList.FindAll(x => x.Type == LexemeType.Case).Count();
 
@@ -66,7 +66,7 @@ namespace Lab1
                     {
                         if (lexemeList[i].Type == LexemeType.Case && i > firstCase)
                         {
-                            lastIndex = i + 1;
+                            lastIndex = i + 3;
                             break;
                         }
                     }
@@ -81,6 +81,9 @@ namespace Lab1
                 WriteCmd(Cmd.JNZ);
 
                 if (!IsStatement()) return false;
+
+                WriteCmdPtr(lastLastIndex);
+                WriteCmd(Cmd.JMP);
 
             }
 
@@ -139,10 +142,15 @@ namespace Lab1
 
 
                 if (!IsStatement()) return false;
+
+                WriteCmdPtr(lastLastIndex);
+                WriteCmd(Cmd.JMP);
             }
 
             if (_lexemeEnumerator.Current == null || _lexemeEnumerator.Current.Type != LexemeType.End) { ErrorType.Error("Ожидается end", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }
             _lexemeEnumerator.MoveNext();
+
+
 
 
             if (_lexemeEnumerator.MoveNext()) { ErrorType.Error("Лишние символы", _lexemeList.IndexOf(_lexemeEnumerator.Current)); }

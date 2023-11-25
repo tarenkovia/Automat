@@ -2,6 +2,7 @@
 {
     JMP,
     JNZ,
+    JZ,
     SET,
     ADD,
     SUB,

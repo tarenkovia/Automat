@@ -88,7 +88,7 @@
             //    "dEfault b = B + 60",
             //    "enD"
             //};
-            string input = "select b + 15 case 40 b = b + 13 case 89 b = b - 89 default b = b + 60 end";
+            string input = "select b + 15 case 40 b = b + 13 default b = b + 60 end";
             Console.WriteLine();
             RunTask4(input);
 
